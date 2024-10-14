@@ -14,6 +14,7 @@ $dna = json_decode($dnaraw);
 mkdir("data");
 mkdir("php");
 mkdir("plots");
+mkdir("jsondata");
 
 copy("https://raw.githubusercontent.com/lafefspietz/vna_live/main/php/replicator.txt","replicator.php");
 

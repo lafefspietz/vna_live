@@ -9,7 +9,8 @@ github.com/lafelabs/OSHI/README.md
 
     -->
 
-<link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAA4AcAAO/3AADH9wAA7/cAAO/3AADEdwAA7/cAAOw3AADH9wAA7HcAAO/3AADEFwAA7/cAAOAHAAD//wAA" rel="icon" type="image/x-icon">
+<link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEREREREREREREREREREREREREREREREREREREREREREQAQABEQERAQEQEQERAREBAQEBARABEQEBEQEBAQAAAQERAQARAREBAREBAREBEQEQABEBEQAAEREREREREREREREREREREREREREREREREREREREREREREREREREREREAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" rel="icon" type="image/x-icon">
+
 
     <!--Stop Google:-->
     <META NAME="robots" CONTENT="noindex,nofollow">
@@ -31,24 +32,56 @@ github.com/lafelabs/OSHI/README.md
     
 </head>
 <body>    
-<a id = "editlink" href= "webeditor.html">EDIT</a>
 
-<div id = "plotscroll">
-    <!--this is where the plots go-->
+<div id = "sidepanel">
+<p>
+<a id = "editlink" href= "webeditor.html">EDIT</a>
+</p>
+<table>
+        <tr>
+            <td>NOTES:</td>
+            <TD>
+                <INPUT id = "notesinput"/>
+            </TD>
+        </tr>
+    </table>
+
+    <textarea id ="jsonio"></textarea>
+    <div id = "savebutton" class = "button">SAVE</div>
+
+    <div id = "plotscroll">
+            <!--this is where the plots go-->
+    </div>
+
 </div>
 
 <script>
 
+if(innerWidth - innerHeight){
+    document.getElementById("sidepanel").style.width = (innerWidth - 800).toString() + "px";
+}
 
 var httpc = new XMLHttpRequest();
 httpc.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
         jsondata = JSON.parse(this.responseText);            
-        
+        document.getElementById("jsonio").value = this.responseText;
     }
 };
 httpc.open("GET", "fileloader.php?filename=testdata.txt", true);
 httpc.send();
+
+notes = "";
+var httpcnotes = new XMLHttpRequest();
+httpcnotes.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        notes = this.responseText;            
+        document.getElementById("notesinput").value = notes;
+    }
+};
+httpcnotes.open("GET", "fileloader.php?filename=notes.txt", true);
+httpcnotes.send();
+
 
 ticlength = 15;//pixels
 xticunit = 1e9;//1 GHz
@@ -75,6 +108,7 @@ function draw(){
     httpc.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             jsondata = JSON.parse(this.responseText);
+            jsondata.notes = notes;
               background(255);
               noFill();
               strokeWeight(5);
@@ -127,6 +161,8 @@ function draw(){
               rotate(Math.PI/2);
               translate(width/2 - 300,-height/2 - 25);
               text("S21 [dB]",100,0.5*height);
+              translate(-width/2 + 300,height/2 + 25);
+              rotate(-Math.PI/2);
               
         }
     };
@@ -137,6 +173,120 @@ function draw(){
 
 }
 
+
+
+function post(){
+            
+    png64 = document.getElementById("defaultCanvas0").toDataURL("image/png");
+    var timestamp = Math.round((new Date().getTime())/1000).toString();
+    var httpc = new XMLHttpRequest();
+    var url = "pngsave.php";        
+    httpc.open("POST", url, true);
+    httpc.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    httpc.send("data="+encodeURIComponent(png64.substring(22))+"&filename=plots/vnaplot" + timestamp +  ".png");//send text to filesaver.php
+     //location.reload(); 
+     
+    newfilename = "plots/vnaplot" + timestamp +  ".png";
+    
+    var newbox = document.createElement("DIV");
+    newbox.classList.add("imagebox");         
+    
+    var deletespan = document.createElement("SPAN");
+    deletespan.innerHTML = "X";
+    deletespan.classList.add("deletespan");
+    deletespan.onclick = function(){
+        //delete the parent div of the image
+        //delete the file
+        var filename = this.parentElement.getElementsByClassName("filelabel")[0].innerHTML; 
+        var httpc = new XMLHttpRequest();
+        var url = "deletefile.php";         
+        httpc.open("POST", url, true);
+        httpc.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+        httpc.send("filename=plots/" + filename);//send text to deletefile.php
+        this.parentElement.parentElement.removeChild(this.parentElement);
+    }
+    
+    newbox.appendChild(deletespan);
+
+    var newdiv = document.createElement("DIV");
+    newdiv.innerHTML = newfilename;
+    newdiv.className = "filelabel";
+    newbox.appendChild(newdiv);
+
+    var newimg = document.createElement("IMG");
+    newimg.src = png64;
+    newimg.classList.add("uploadimage");
+    newimg.classList.add("button");
+    newbox.appendChild(newimg);    
+
+
+    document.getElementById("plotscroll").insertBefore(newbox,document.getElementById("plotscroll").getElementsByClassName("imagebox")[0]);
+        
+}
+
+function keyPressed() {
+
+    if(key == 's'){
+        post();
+    }
+
+}
+
+
+document.getElementById("savebutton").onclick = function(){
+    post();
+}
+
+upuploadImages = [];
+var httpc9 = new XMLHttpRequest();
+    httpc9.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        upuploadImages = JSON.parse(this.responseText);
+        for(var index = upuploadImages.length - 1;index >= 0;index--) {
+            
+            if(upuploadImages[index].includes("vnaplot")){
+            
+                var newbox = document.createElement("DIV");
+                newbox.classList.add("imagebox");         
+                
+                var deletespan = document.createElement("SPAN");
+                deletespan.innerHTML = "X";
+                deletespan.classList.add("deletespan");
+                deletespan.onclick = function(){
+                    //delete the parent div of the image
+                    //delete the file
+                    var filename = this.parentElement.getElementsByClassName("filelabel")[0].innerHTML; 
+                    var httpc = new XMLHttpRequest();
+                    var url = "deletefile.php";         
+                    httpc.open("POST", url, true);
+                    httpc.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+                    httpc.send("filename=plots/" + filename);//send text to deletefile.php
+                    this.parentElement.parentElement.removeChild(this.parentElement);
+                }
+                
+                newbox.appendChild(deletespan);
+        
+                var newdiv = document.createElement("DIV");
+                newdiv.innerHTML = upuploadImages[index];
+                newdiv.className = "filelabel";
+                newbox.appendChild(newdiv);
+            
+                
+                document.getElementById("plotscroll").appendChild(newbox);
+                var newimg = document.createElement("IMG");
+                newimg.src = "plots/" + upuploadImages[index];
+                newimg.classList.add("uploadimage");
+                newimg.classList.add("button");
+                newbox.appendChild(newimg);
+                
+            }
+            
+        }
+    }
+};
+httpc9.open("GET", "dir.php?filename=plots", true);
+httpc9.send();
+
 </script>
 <style>
 body{
@@ -146,6 +296,12 @@ body{
 }
 a{
     color:blue;
+}
+#plotscroll{
+    width:100%;
+}
+#plotscroll img{
+    max-width:50%;
 }
 #defaultCanvas0{
     border:solid;
