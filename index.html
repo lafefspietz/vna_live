@@ -15,7 +15,6 @@ github.com/lafelabs/OSHI/README.md
     <META NAME="robots" CONTENT="noindex,nofollow">
     <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.js" defer></script>
 
-<!--       un comment to use math
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script>
@@ -28,14 +27,15 @@ github.com/lafelabs/OSHI/README.md
                 }
             });//			MathJax.Hub.Typeset();//tell Mathjax to update the math
         </script>
-    -->
 
     
 </head>
 <body>    
-<div id = "scrollscroll"></div>
 <a id = "editlink" href= "webeditor.html">EDIT</a>
 
+<div id = "plotscroll">
+    <!--this is where the plots go-->
+</div>
 
 <script>
 
@@ -43,18 +43,22 @@ github.com/lafelabs/OSHI/README.md
 var httpc = new XMLHttpRequest();
 httpc.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-        jsondata = JSON.parse(this.responseText);
+        jsondata = JSON.parse(this.responseText);            
         
     }
 };
 httpc.open("GET", "fileloader.php?filename=testdata.txt", true);
 httpc.send();
-    
-    
+
+ticlength = 15;//pixels
+xticunit = 1e9;//1 GHz
+yticunit = 10;//10 dB
+textfontsize = 24;
+graphmargin = 50;
     
 function setup() {
 
-  createCanvas(1000, 1000);    
+  createCanvas(800, 600);    
   strokeWeight(2);  
   background(255);
   noFill();
@@ -72,16 +76,58 @@ function draw(){
         if (this.readyState == 4 && this.status == 200) {
             jsondata = JSON.parse(this.responseText);
               background(255);
-
+              noFill();
+              strokeWeight(5);
               beginShape();
-              for (var i = 0; i < jsondata.S21_logmag.length; i++){
-                var x = map(i, 0, jsondata.frequency.length, 0, width);
-                var y = map(-jsondata.S21_logmag[i], -40, 0, -height, 0);
+              for (var i = 0; i < jsondata.frequency.length; i++){
+                var x = graphmargin + map(i,0,jsondata.frequency.length, 0, width - 2*graphmargin);
+                var y = graphmargin + map(-jsondata.S21_logmag[i], -40, 0,2*graphmargin -height, 0);
                 vertex(x, y);
-                
               }
               endShape();
-            
+              
+              rect(graphmargin,graphmargin,width - 2*graphmargin,height - 2*graphmargin);
+
+              
+              
+              for(var index = 1;index < 15;index++){
+                  ticx = graphmargin + map(1e9*index,jsondata.f_start,jsondata.f_stop, 0, width - 2*graphmargin);
+                  strokeWeight(1);
+                  textSize(18);
+                  fill(0);
+                  text(index.toString(),ticx - 5,height - graphmargin + 20);
+                  line(ticx,graphmargin,ticx,height- graphmargin);          
+                  strokeWeight(5);
+                  line(ticx,height- graphmargin - 10,ticx,height- graphmargin);    
+                  line(ticx,graphmargin + 10,ticx,graphmargin);    
+
+              }
+
+              for(var index = 1;index < 8;index++){
+                 
+                  ticy = graphmargin + map(10*index, -40, 0,2*graphmargin - height, 0);
+                  strokeWeight(1);
+                  textSize(18);
+                  fill(0);
+                  text((-index*10).toString(),graphmargin - 36,ticy + 6);
+
+                  line(graphmargin,ticy,width - graphmargin,ticy);          
+                  strokeWeight(5);
+                  line(graphmargin,ticy,graphmargin+ 10,ticy);    
+                  line(width - graphmargin,ticy,width - graphmargin - 10,ticy);    
+              }
+              fill(0);
+                  strokeWeight(1);
+              text("Frequency [GHz]",0.5*width - 100,height - graphmargin + 40);
+        
+              text("0",graphmargin - 18,graphmargin+6);
+              text(jsondata.notes,graphmargin - 18,33);
+
+    
+              rotate(Math.PI/2);
+              translate(width/2 - 300,-height/2 - 25);
+              text("S21 [dB]",100,0.5*height);
+              
         }
     };
     httpc.open("GET", "fileloader.php?filename=testdata.txt", true);
@@ -101,8 +147,18 @@ body{
 a{
     color:blue;
 }
-
-
+#defaultCanvas0{
+    border:solid;
+    position:absolute;
+    right:5px;
+    top:5px;
+    
+}
+#main{
+    position:absolute;
+    right:0px;
+    top:0px;
+}
 @media only screen and (orientation: landscape) {
 
     

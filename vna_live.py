@@ -7,7 +7,7 @@ import json
 import numpy as np
 
 rm = pyvisa.ResourceManager()
-vna_gpib = rm.open_resource('GPIB1::19::INSTR')  
+vna_gpib = rm.open_resource('GPIB1::19::INSTR')
 
 while True:
     f_start = float(vna_gpib.query('SENS:FREQ:STAR?'))
