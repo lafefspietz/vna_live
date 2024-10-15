@@ -18,7 +18,7 @@ while True:
     power = float(vna_gpib.query('SOUR:POW1?'))
     rbw = float(vna_gpib.query('sense:bandwidth:resolution?'))
 
-    vna_gpib.write('CALCulate:PARameter:SELect "CH1_S12_2"')
+    vna_gpib.write('CALCulate:PARameter:SELect "CH1_S21_1"')
     vna_gpib.write('FORMat ASCII, 0')
     rawdata = vna_gpib.query('CALCulate:DATA? FDATA')
     asciiarray = rawdata.split(',')

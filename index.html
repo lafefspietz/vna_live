@@ -297,8 +297,14 @@ body{
 a{
     color:blue;
 }
+#jsonio{
+    width:80%;
+    height:10em;
+}
 #plotscroll{
     width:100%;
+    overflow:scroll;
+    bottom:0px;
 }
 #plotscroll img{
     max-width:50%;
@@ -323,6 +329,51 @@ a{
 @media only screen and (orientation: portrait) {
     
     
+}
+
+.deletespan{
+    color:red;
+    border:solid;
+    border-color:red;
+    border-radius:0.5em;
+    padding: 1em 1em 1em 1em;
+    cursor:pointer;
+}
+.deletespan:hover{
+    background-color:#ff000080;
+}
+
+.filelabel{
+    display:none;
+}
+.button{
+    cursor:pointer;
+}
+.button:hover{
+    background-color:green;
+}
+.button:active{
+    background-color:yellow;
+}
+.data{
+    display:none;
+}
+#savebutton{
+    text-align:center;
+    border:solid;
+    border-radius:10px;
+    border-width:4px;
+    font-family:Comic Sans MS;
+    font-size:1.5em;
+    width:5em;
+    margin:auto;
+    cursor:pointer;
+}
+#savebutton:hover{
+    background-color:green;
+}
+#savebutton:active{
+    background-color:yellow;
 }
 </style>
 </body>
