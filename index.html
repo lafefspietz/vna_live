@@ -34,10 +34,17 @@ github.com/lafelabs/OSHI/README.md
 <body>    
 
 <div id = "sidepanel">
-<p>
-<a id = "editlink" href= "webeditor.html">EDIT</a>
-</p>
-<table>
+    <p>
+    <a id = "editlink" href= "webeditor.html">EDIT</a>
+    </p>
+    <p>
+        To run the python code which fetches the trace and saves it to testdata.txt, open an Anaconda prompt and type in the following 2 commands:
+    </p>
+    <pre>
+    cd c:\xampp\htdocs\vna_live
+    python vna_live.py
+    </pre>
+    <table>
         <tr>
             <td>NOTES:</td>
             <TD>
@@ -89,6 +96,15 @@ yticunit = 10;//10 dB
 textfontsize = 24;
 graphmargin = 50;
     
+document.getElementById("notesinput").onchange = function(){
+    notes = this.value;
+    var httpcn = new XMLHttpRequest();
+    var url = "filesaver.php";        
+    httpcn.open("POST", url, true);
+    httpcn.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+    httpcn.send("data="+notes+"&filename=notes.txt");//send text to filesaver.php
+}
+
 function setup() {
 
   createCanvas(800, 600);    
@@ -206,6 +222,8 @@ function post(){
         this.parentElement.parentElement.removeChild(this.parentElement);
     }
     
+    document.getElementById("jsonio").value = JSON.stringify(jsondata,null,"    ");
+    
     newbox.appendChild(deletespan);
 
     var newdiv = document.createElement("DIV");
@@ -297,6 +315,12 @@ body{
 a{
     color:blue;
 }
+#sidepanel{
+    position:absolute;
+    left:0px;
+    bottom:0px;
+    top:0px;
+}
 #jsonio{
     width:80%;
     height:10em;
@@ -305,6 +329,9 @@ a{
     width:100%;
     overflow:scroll;
     bottom:0px;
+    position:absolute;
+    left:0px;
+    height:50%;
 }
 #plotscroll img{
     max-width:50%;
@@ -363,7 +390,6 @@ a{
     border:solid;
     border-radius:10px;
     border-width:4px;
-    font-family:Comic Sans MS;
     font-size:1.5em;
     width:5em;
     margin:auto;
